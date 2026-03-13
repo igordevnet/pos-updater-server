@@ -9,7 +9,12 @@ export class UserRepository {
         private readonly userModel: Model<UserDocument>
     ) {}
 
-    async createUser(dto: CreateUserDTO) {
-        await this.userModel.create(dto);
+    public async createUser(dto: CreateUserDTO) {
+        const createdUser = new this.userModel(dto);
+        return createdUser.save();
+    }
+
+    public getUserByCNPJ(cnpj: string) {
+        return this.userModel.findOne({cnpj}).exec();
     }
 }

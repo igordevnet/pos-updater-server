@@ -29,4 +29,8 @@ export class UserService {
     public getUserByName(name: string) {
         return this.userRepository.getUserByName(name);
     }
+
+    public getUserById(id: string) {
+        return this.userRepository.getUserById(id);
+    }
 }

@@ -7,14 +7,14 @@ import { AuthRepository } from "./repositories/auth.repository";
 import { UserModule } from "../user/user.module";
 import { AtStrategy } from "./strategies/at.strategy";
 import { RtStrategy } from "./strategies/rt.strategy";
-import { JwtModule } from "@nestjs/jwt";
+import { TokenModule } from "src/shared/modules/jwt/token.module";
 
 @Module({
     imports: [MongooseModule.forFeature([
         { name: Auth.name, schema: AuthSchema }
     ]),
         UserModule,
-        JwtModule.register({})
+        TokenModule
     ],
     controllers: [AuthController],
     providers: [

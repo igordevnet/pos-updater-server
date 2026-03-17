@@ -1,6 +1,12 @@
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
 
+type JwtPayload = {
+    sub: string,
+    device: string,
+    name: string
+}
+
 export class AtStrategy extends PassportStrategy(Strategy, 'jwt') {
     public constructor () {
         super({
@@ -9,7 +15,7 @@ export class AtStrategy extends PassportStrategy(Strategy, 'jwt') {
         });
     }
 
-    validate(payload: any) {
+    validate(payload: JwtPayload) {
         return payload;
     }
 }

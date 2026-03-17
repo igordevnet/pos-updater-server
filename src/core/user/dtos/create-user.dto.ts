@@ -1,5 +1,5 @@
 import { IsString, IsStrongPassword } from "class-validator";
-import { IsCNPJ } from "src/shared/validators/cnpj.validator";
+import { IsCNPJ } from "src/shared/decorators/validators/cnpj.validator";
 
 export class CreateUserDTO {
     @IsString()

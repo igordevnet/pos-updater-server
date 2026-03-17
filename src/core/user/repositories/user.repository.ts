@@ -21,4 +21,8 @@ export class UserRepository {
     public getUserByName(name: string) {
         return this.userModel.findOne({ name }).exec();
     }
+
+    public getUserById(id: string) {
+        return this.userModel.findById(id).exec();
+    }
 }

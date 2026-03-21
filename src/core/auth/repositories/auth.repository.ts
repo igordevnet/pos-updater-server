@@ -7,7 +7,7 @@ export class AuthRepository {
 
     public constructor(
         @InjectModel('Auth')
-        private readonly authModel: Model<Auth>
+        private readonly authModel: Model<Auth>,
     ) { }
 
     public createToken(dto: CreateTokenDTO) {

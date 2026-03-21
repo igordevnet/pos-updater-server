@@ -4,6 +4,7 @@ import { UserService } from "../user/user.service";
 import { SecurityService } from "../../shared/modules/security/security.service";
 import { AuthRepository } from "./repositories/auth.repository";
 import { TokenService } from "../../shared/modules/jwt/token.service";
+import { UnauthorizedException } from "@nestjs/common";
 
 const mockUserService = {
     getUserByName: jest.fn(),
@@ -48,7 +49,7 @@ describe('AuthService', () => {
     });
 
     describe('login', () => {
-        it('should return auth tokens successfully', () => {
+        it('should return auth tokens successfully', async () => {
             const dto = {
                 name: 'mock_name',
                 password: 'plain_password',
@@ -64,12 +65,16 @@ describe('AuthService', () => {
 
             mockSecurityService.compareData.mockResolvedValue(true);
 
+            jest.spyOn(service as any, 'generateAndSaveTokens').mockResolvedValue(tokens);
+
+            const result = await service.login(dto);
+
             expect(mockUserService.getUserByName).toHaveBeenCalledWith(dto.name);
             expect(mockSecurityService.compareData).toHaveBeenCalledWith('plain_password', 'hashed_password');
-            expect(service['generateAndSaveTokens']).toHaveReturnedWith(tokens);
+            expect(result).toEqual(tokens);
         });
 
-        it('should throw unauthorized exception when password is invalid', () => {
+        it('should throw unauthorized exception when password is invalid', async () => {
             const dto = {
                 name: 'mock_name',
                 password: 'plain_password',
@@ -77,14 +82,14 @@ describe('AuthService', () => {
             };
 
             mockUserService.getUserByName.mockResolvedValue({ id: '1', name: 'mock_name', password: 'hashed_password' });
-
             mockSecurityService.compareData.mockResolvedValue(false);
 
-            expect(mockUserService.getUserByName).toHaveBeenCalledWith(dto.name);
-            expect(mockSecurityService.compareData).rejects.toThrow('Invalid credentials');
+            await expect(service.login(dto)).rejects.toThrow(UnauthorizedException);
+
+            expect(mockSecurityService.compareData).toHaveBeenCalledWith('plain_password', 'hashed_password');
         });
 
-        it('should throw unauthorized exception when user does not exist', () => {
+        it('should throw unauthorized exception when user does not exist', async () => {
             const dto = {
                 name: 'mock_name',
                 password: 'plain_password',
@@ -93,92 +98,95 @@ describe('AuthService', () => {
 
             mockUserService.getUserByName.mockResolvedValue(null);
 
-            expect(mockUserService.getUserByName).rejects.toThrow('Invalid credentials');
+            await expect(service.login(dto)).rejects.toThrow(UnauthorizedException);
         });
     });
 
     describe('logout', () => {
-        it('should return void if logged out successfully', () => {
+        it('should return void if logged out successfully', async () => {
             const userId = '123';
             const deviceId = 'mock_device';
 
-            mockAuthRepository.deleteToken.mockReturnThis();
+            const dto = { userId, deviceId };
+
+            mockAuthRepository.deleteToken.mockResolvedValue(undefined);
+
+            await service.logout(dto);
 
             expect(mockAuthRepository.deleteToken).toHaveBeenCalledWith(userId, deviceId);
         });
     });
 
     describe('refreshToken', () => {
-        it('should return a new pair of token', () => {
-            const refresh_token = 'refresh_token';
+        it('should return a new pair of token', async () => {
+            const refreshToken = 'refresh_token';
             const deviceId = 'mock_device';
+            const hashed_token = 'hashed_token';
 
             const user = {
                 userId: '1',
                 deviceId,
-                refresh_token: 'hashed_token',
+                refreshToken: 'hashed_token',
             }
 
-            mockAuthRepository.getEntityByDevice.mockResolvedValue({ userId: '1', deviceId, refresh_token });
+            const tokens = {
+                access_token: 'access_token',
+                refresh_token: 'refresh_token',
+            };
+
+            mockAuthRepository.getEntityByDevice.mockResolvedValue({ userId: '1', deviceId, refreshToken: hashed_token });
 
             mockSecurityService.compareData.mockResolvedValue(true);
 
             mockUserService.getUserById.mockResolvedValue(user);
 
+            jest.spyOn(service as any, 'generateAndSaveTokens').mockResolvedValue(tokens);
+
+            const result = await service.refreshToken({ refreshToken, deviceId });
+
+            expect(result).toEqual(tokens);
             expect(mockAuthRepository.getEntityByDevice).toHaveBeenCalledWith(deviceId);
-            expect(mockSecurityService.compareData).toHaveBeenCalledWith(refresh_token, user.refresh_token);
+            expect(mockSecurityService.compareData).toHaveBeenCalledWith(refreshToken, user.refreshToken);
             expect(mockUserService.getUserById).toHaveBeenCalledWith(user.userId);
         });
 
-        it('should throw unauthorized exception when token is invalid', () => {
+        it('should throw unauthorized exception when token is invalid', async () => {
             const refresh_token = 'invalid_refresh_token';
             const deviceId = 'mock_device';
 
-            const user = {
-                userId: '1',
-                deviceId,
-                refresh_token: 'hashed_token',
-            }
-
-            mockAuthRepository.getEntityByDevice.mockResolvedValue({ userId: '1', deviceId, refresh_token });
+            mockAuthRepository.getEntityByDevice.mockResolvedValue({ userId: '1', deviceId, refreshToken: 'hashed_token' });
 
             mockSecurityService.compareData.mockResolvedValue(false);
 
+
+            await expect(service.refreshToken({ refreshToken: refresh_token, deviceId })).rejects.toThrow(UnauthorizedException);
             expect(mockAuthRepository.getEntityByDevice).toHaveBeenCalledWith(deviceId);
-            expect(mockSecurityService.compareData).toHaveBeenCalledWith(refresh_token, user.refresh_token);
-            expect(mockSecurityService.compareData).rejects.toThrow('Please, log in again');
+            expect(mockSecurityService.compareData).toHaveBeenCalledWith(refresh_token, 'hashed_token');
         });
 
-        it('should throw unauthorized exception when device is invalid', () => {
-            const refresh_token = 'refresh_token';
+        it('should throw unauthorized exception when device is invalid', async () => {
             const deviceId = 'invalid_mock_device';
-
-            const user = {
-                userId: '1',
-                deviceId,
-                refresh_token: 'hashed_token',
-            }
 
             mockAuthRepository.getEntityByDevice.mockResolvedValue(null);
 
+            await expect(service.refreshToken({ refreshToken: 'refresh_token', deviceId })).rejects.toThrow(UnauthorizedException);
             expect(mockAuthRepository.getEntityByDevice).toHaveBeenCalledWith(deviceId);
-            expect(mockAuthRepository.getEntityByDevice).rejects.toThrow('Please, log in again');
         });
 
-        it('should throw unauthorized exception when user does not exist', () => {
+        it('should throw unauthorized exception when user does not exist', async () => {
             const refresh_token = 'refresh_token';
             const hashed_token = 'hashed_token';
             const deviceId = 'invalid_mock_device';
 
-            mockAuthRepository.getEntityByDevice.mockResolvedValue({ userId: '1', deviceId, refresh_token });
+            mockAuthRepository.getEntityByDevice.mockResolvedValue({ userId: '1', deviceId, refreshToken: hashed_token });
 
             mockSecurityService.compareData.mockResolvedValue(true);
 
             mockUserService.getUserById.mockResolvedValue(null);
 
+            await expect(service.refreshToken({ refreshToken: refresh_token, deviceId })).rejects.toThrow(UnauthorizedException);
             expect(mockAuthRepository.getEntityByDevice).toHaveBeenCalledWith(deviceId);
             expect(mockSecurityService.compareData).toHaveBeenCalledWith(refresh_token, hashed_token);
-            expect(mockUserService.getUserById).rejects.toThrow('Please, log in again')
         });
     });
 });

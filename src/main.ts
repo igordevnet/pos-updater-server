@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { WinstonModule } from 'nest-winston';
 import { winstonConfig } from './config/winston.config';
 import { LoggingInterceptor } from './shared/interceptors/logging.interceptor';
+import { swaggerConfig } from './config/swagger.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -19,6 +20,8 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  swaggerConfig(app);
 
   await app.listen(process.env.PORT ?? 3000);
 }

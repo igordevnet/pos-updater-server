@@ -7,7 +7,7 @@ export class CreateUserDTO {
     @IsString()
     name: string;
 
-    @ApiProperty({ example: '35.109.230/0001-78', description: 'The CNPJ of the user' })
+    @ApiProperty({ example: '35109230000178', description: 'The CNPJ of the user' })
     @IsCNPJ()
     cnpj: string;
 

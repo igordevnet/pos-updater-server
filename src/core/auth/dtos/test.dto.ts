@@ -4,7 +4,7 @@ export class testDTO {
     @IsString()
     name: string;
     @IsString()
-    deviceId: string;
+    deviceName: string;
     @IsString()
     version: string;
 }

@@ -34,7 +34,7 @@ export class AuthService {
             name: dto.name
         }
 
-        return this.generateAndSaveTokens(payload);
+        return this.generateAndSaveTokens(payload, dto.deviceName);
     }
 
 
@@ -61,10 +61,10 @@ export class AuthService {
             name: user.name
         }
 
-        return this.generateAndSaveTokens(payload);
+        return this.generateAndSaveTokens(payload, authEntity.deviceName);
     }
 
-    private async generateAndSaveTokens(payload: JwtPayload): Promise<Tokens> {
+    private async generateAndSaveTokens(payload: JwtPayload, deviceName: string): Promise<Tokens> {
         const refreshToken = await this.tokenService.generateRefreshToken();
         const accessToken = await this.tokenService.generateAccessToken(payload);
 
@@ -72,6 +72,7 @@ export class AuthService {
 
         const parameters = {
             userId: payload.userId,
+            deviceName: deviceName,
             deviceId: payload.deviceId,
             refreshToken: await this.securityService.hashData(refreshToken)
         }

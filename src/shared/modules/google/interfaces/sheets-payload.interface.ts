@@ -1,5 +1,5 @@
 export interface SheetsPayload {
     name: string;
-    deviceId: string;
+    deviceName: string;
     version: string;
 }

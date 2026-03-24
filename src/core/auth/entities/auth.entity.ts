@@ -6,6 +6,9 @@ export class Auth {
     userId: string;
 
     @Prop({ required: true })
+    deviceName: string;
+
+    @Prop({ required: true })
     deviceId: string;
 
     @Prop({ required: true, unique: true })

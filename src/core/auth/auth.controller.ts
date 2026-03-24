@@ -53,7 +53,6 @@ export class AuthController {
 
     @Post('/test')
     public test(@Body() payload: testDTO) {
-        console.log('Received payload:', payload);
         this.googleSheetsService.updatePdvVersion(payload);
     }
 }

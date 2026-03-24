@@ -38,7 +38,7 @@ export class GoogleSheetsService {
             });
 
             const rows = getResponse.data.values || [];
-            const rowIndex = rows.findIndex(row => row[0] === payload.name && row[1] === payload.deviceId);
+            const rowIndex = rows.findIndex(row => row[0] === payload.name && row[1] === payload.deviceName);
             const timeStamp = new Date().toLocaleDateString("pt-BR");
 
             if (rowIndex !== -1) {
@@ -54,7 +54,7 @@ export class GoogleSheetsService {
                     },
                 });
 
-                this.logger.log(`[Google Sheets] Updated PDV version for ${payload.name} (Device ID: ${payload.deviceId}) to ${payload.version} at row ${excelRow}`);
+                this.logger.log(`[Google Sheets] Updated PDV version for ${payload.name} (Device ID: ${payload.deviceName}) to ${payload.version} at row ${excelRow}`);
             } else {
                 await this.sheets.spreadsheets.values.append({
                     spreadsheetId: this.spreadsheetId,
@@ -62,15 +62,15 @@ export class GoogleSheetsService {
                     valueInputOption: 'USER_ENTERED',
                     insertDataOption: 'INSERT_ROWS',
                     requestBody: {
-                        values: [[payload.name, payload.deviceId, payload.version, timeStamp]],
+                        values: [[payload.name, payload.deviceName, payload.version, timeStamp]],
                     },
                 });
 
                 await this.sortSheet();
-                this.logger.log(`[Google Sheets] Added new entry for ${payload.name} (Device ID: ${payload.deviceId}) with version ${payload.version}`);
+                this.logger.log(`[Google Sheets] Added new entry for ${payload.name} (Device ID: ${payload.deviceName}) with version ${payload.version}`);
             }
         } catch (error) {
-            this.logger.error(`[Google Sheets] Error updating PDV version for ${payload.name} (Device ID: ${payload.deviceId}): ${error.message}`);
+            this.logger.error(`[Google Sheets] Error updating PDV version for ${payload.name} (Device ID: ${payload.deviceName}): ${error.message}`);
         }
     }
 

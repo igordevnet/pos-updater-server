@@ -2,6 +2,7 @@ import { Injectable, StreamableFile } from '@nestjs/common';
 import { createReadStream } from 'fs';
 import { join } from 'path';
 import winVersionInfo from 'win-version-info';
+import { DownloadFileDTO } from './dtos/download-file.dto';
 
 
 @Injectable()
@@ -20,7 +21,7 @@ export class UpdateService {
     }
 
 
-    public getLastestFile(): StreamableFile {
+    public getLastestFile(dto: DownloadFileDTO): StreamableFile {
 
         const fileStream = createReadStream(this.filePath);
 

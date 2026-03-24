@@ -28,13 +28,13 @@ export class AuthService {
 
         if (!passwordMatches) throw new UnauthorizedException('Invalid credentials');
 
-        const tokenDto = {
+        const payload = {
             userId: user.id,
             deviceId: dto.deviceId,
             name: dto.name
         }
 
-        return this.generateAndSaveTokens(tokenDto, user.id);
+        return this.generateAndSaveTokens(payload);
     }
 
 
@@ -61,17 +61,17 @@ export class AuthService {
             name: user.name
         }
 
-        return this.generateAndSaveTokens(payload, authEntity.userId);
+        return this.generateAndSaveTokens(payload);
     }
 
-    private async generateAndSaveTokens(payload: JwtPayload, userId: string): Promise<Tokens> {
+    private async generateAndSaveTokens(payload: JwtPayload): Promise<Tokens> {
         const refreshToken = await this.tokenService.generateRefreshToken();
         const accessToken = await this.tokenService.generateAccessToken(payload);
 
-        await this.authRepository.deleteToken(userId, payload.deviceId);
+        await this.authRepository.deleteToken(payload.userId, payload.deviceId);
 
         const parameters = {
-            userId: userId,
+            userId: payload.userId,
             deviceId: payload.deviceId,
             refreshToken: await this.securityService.hashData(refreshToken)
         }

@@ -46,7 +46,14 @@ export class UpdateService {
             exeVersion: version,
         };
 
-        this.updateRepository.createInstance(payload);
+        const instanceCompare = this.updateRepository.getInstanceByDevice(dto.deviceId);
+
+        if(!instanceCompare) {
+            this.updateRepository.createInstance(payload);
+        } 
+        else {
+            this.updateRepository.updateInstance(payload);
+        }
 
         const payloadSheet = {
             name: dto.name,

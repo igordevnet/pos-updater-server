@@ -20,6 +20,10 @@ export class UpdateRepository {
             { exeVersion: dto.exeVersion }
         );
     }
+
+    public async getInstanceByDevice(deviceId: string) {
+        return this.updateModel.findOne({ deviceId });
+    }
 }
 
 

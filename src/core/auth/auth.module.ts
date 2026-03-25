@@ -8,6 +8,7 @@ import { UserModule } from "../user/user.module";
 import { AtStrategy } from "../../shared/modules/jwt/strategies/at.strategy";
 import { TokenModule } from "src/shared/modules/jwt/token.module";
 import { SecurityModule } from "src/shared/modules/security/security.module";
+import { GoogleSheetsModule } from "../../shared/modules/google/google-sheets.module";
 
 @Module({
     imports: [MongooseModule.forFeature([
@@ -15,7 +16,8 @@ import { SecurityModule } from "src/shared/modules/security/security.module";
     ]),
         UserModule,
         TokenModule,
-        SecurityModule
+        SecurityModule,
+        GoogleSheetsModule
     ],
     controllers: [AuthController],
     providers: [

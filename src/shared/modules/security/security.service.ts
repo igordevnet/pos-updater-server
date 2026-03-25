@@ -15,7 +15,7 @@ export class SecurityService {
   }
 
   private getSaltRounds(): number {
-    const raw = process.env.SALTROUNDS?.trim();
+    const raw = this.configService.get<string>('SALTROUNDS')?.trim();
     const value = Number(raw);
 
     if (!Number.isInteger(value) || value <= 0) {

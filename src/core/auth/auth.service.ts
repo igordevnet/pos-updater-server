@@ -2,13 +2,12 @@ import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { AuthRepository } from "./repositories/auth.repository";
 import { LoginDTO } from "./dtos/login.dto";
 import { UserService } from "../user/user.service";
-import { SecurityService } from "src/shared/modules/security/security.service";
-import { Tokens } from "src/shared/types/tokens.type";
+import { SecurityService } from "../../shared/modules/security/security.service";
+import { Tokens } from "../../shared/types/tokens.type";
 import { DeleteTokenDTO } from "./dtos/delete-token.dto";
 import { RefreshTokenDTO } from "./dtos/refresh-token.dto";
-import { TokenService } from "src/shared/modules/jwt/token.service";
+import { TokenService } from "../../shared/modules/jwt/token.service";
 import { JwtPayload } from "./interfaces/jwt-payload.inteface";
-
 @Injectable()
 export class AuthService {
 
@@ -16,10 +15,11 @@ export class AuthService {
         private readonly authRepository: AuthRepository,
         private readonly userService: UserService,
         private readonly tokenService: TokenService,
-        private readonly securityService: SecurityService
+        private readonly securityService: SecurityService,
     ) { }
 
     public async login(dto: LoginDTO): Promise<Tokens> {
+
         const user = await this.userService.getUserByName(dto.name);
 
         if (!user) throw new UnauthorizedException('Invalid credentials');
@@ -28,13 +28,13 @@ export class AuthService {
 
         if (!passwordMatches) throw new UnauthorizedException('Invalid credentials');
 
-        const tokenDto = {
+        const payload = {
             userId: user.id,
             deviceId: dto.deviceId,
             name: dto.name
         }
 
-        return this.generateAndSaveTokens(tokenDto, user.id);
+        return this.generateAndSaveTokens(payload, dto.deviceName);
     }
 
 
@@ -61,17 +61,18 @@ export class AuthService {
             name: user.name
         }
 
-        return this.generateAndSaveTokens(payload, authEntity.userId);
+        return this.generateAndSaveTokens(payload, authEntity.deviceName);
     }
 
-    private async generateAndSaveTokens(payload: JwtPayload, userId: string): Promise<Tokens> {
+    private async generateAndSaveTokens(payload: JwtPayload, deviceName: string): Promise<Tokens> {
         const refreshToken = await this.tokenService.generateRefreshToken();
         const accessToken = await this.tokenService.generateAccessToken(payload);
 
-        await this.authRepository.deleteToken(userId, payload.deviceId);
+        await this.authRepository.deleteToken(payload.userId, payload.deviceId);
 
         const parameters = {
-            userId: userId,
+            userId: payload.userId,
+            deviceName: deviceName,
             deviceId: payload.deviceId,
             refreshToken: await this.securityService.hashData(refreshToken)
         }

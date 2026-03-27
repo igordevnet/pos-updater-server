@@ -23,11 +23,7 @@ export class AuthRepository {
     }
 
     public async getEntityByDevice(deviceId: string) {
-        return this.authModel
-            .findOne({ deviceId })
-            .select('_id userId deviceId') 
-            .lean()
-            .exec();
+       return this.authModel.findOne({ deviceId }).exec();
     }
 
 }

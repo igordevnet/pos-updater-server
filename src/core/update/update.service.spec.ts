@@ -8,7 +8,7 @@ import { PassThrough } from 'stream';
 import { UpdateService } from './update.service';
 import { UpdateRepository } from './repositories/update.repository';
 import { GoogleSheetsService } from '../../shared/modules/google/google-sheets.service';
-import { DownloadFileDTO } from './dtos/download-file.dto';
+import { DownloadFileDTO } from './dtos/save-update.dto';
 
 jest.mock('fs', () => ({
   ...jest.requireActual('fs'),

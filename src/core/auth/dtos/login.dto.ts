@@ -11,7 +11,7 @@ export class LoginDTO {
     password: string;
 
     
-    @ApiProperty({ example: 'PDV01', description: 'The name of the device' })
+    @ApiProperty({ example: 'POS01', description: 'The name of the device' })
     @IsString()
     deviceName: string;
 

@@ -2,15 +2,15 @@ import { INestApplication } from "@nestjs/common";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 
 export function swaggerConfig(app: INestApplication) {
-
-    const config = new DocumentBuilder()
-        .setTitle('Updater API')
-        .setDescription('API documentation for the application')
-        .setVersion('1.0.1')
+    if (process.env.NODE_ENV !== 'production') {
+      const config = new DocumentBuilder()
+        .setTitle('Minha API')
+        .setDescription('Documentação interna')
+        .setVersion('2.0')
         .addBearerAuth()
         .build();
-
-    const document = SwaggerModule.createDocument(app, config);
-    
-    SwaggerModule.setup('api-docs', app, document);
+        
+      const document = SwaggerModule.createDocument(app, config);
+      SwaggerModule.setup('api-docs', app, document);
+  }
 }

@@ -1,9 +1,10 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { UpdateService } from './update.service';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation,  ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Version } from 'src/shared/types/version-response.type';
+import { NotifyDownloadDto } from './dtos/notify-download.dto';
 
 
 @ApiTags('Update')
@@ -43,13 +44,13 @@ export class UpdateController {
     @ApiResponse({ status: 401, description: 'Please, log in again' })
     @HttpCode(HttpStatus.OK)
     @UseGuards(AuthGuard('jwt'))
-    public saveLastPdvUpdate(@CurrentUser() user, @Body('deviceName') deviceName) {
-        const dto = {
+    public notifyDownloadComplete(@CurrentUser() user, @Body() dto: NotifyDownloadDto) {
+        const sheetDto = {
             userId: user.sub,
             deviceId: user.device,
             name: user.name,
         }
         
-        return this.updateService.saveAndExport(dto, deviceName);
+        return this.updateService.saveAndExport(sheetDto, dto.deviceName);
     };
 }

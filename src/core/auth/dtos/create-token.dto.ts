@@ -5,7 +5,7 @@ export class CreateTokenDTO {
     @ApiProperty({ example: 'user_id', description: 'The ID of the user' })
     userId: string;
 
-    @ApiProperty({ example: 'PDV01', description: 'The name of the device' })
+    @ApiProperty({ example: 'POS01', description: 'The name of the device' })
     deviceName: string;
 
     @ApiProperty({ example: 'MAC-A1-B2-C3-D4', description: 'The unique ID of the device' })

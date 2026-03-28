@@ -55,9 +55,14 @@ export class UserService {
         }
 
         const user = await this.userRepository.getUserById(id);
-        if (!user) null;
+        if (!user) return null;
 
-        await this.cacheManager.set(cacheKey, user, 300000);
+        const secureUser = {
+            _id: user._id,
+            name: user.name,
+        }
+
+        await this.cacheManager.set(cacheKey, secureUser, 300000);
         return user;
     }
 }

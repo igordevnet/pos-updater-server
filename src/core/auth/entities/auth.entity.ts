@@ -8,12 +8,11 @@ export class Auth {
     @Prop({ required: true })
     deviceName: string;
 
-    @Prop({ required: true })
+    @Prop({ required: true, unique: true })
     deviceId: string;
 
     @Prop({ required: true, unique: true })
     refreshToken: string;
-
 }
 
 export const AuthSchema = SchemaFactory.createForClass(Auth);

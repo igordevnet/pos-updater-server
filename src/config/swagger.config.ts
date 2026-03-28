@@ -6,7 +6,7 @@ export function swaggerConfig(app: INestApplication) {
       const config = new DocumentBuilder()
         .setTitle('Minha API')
         .setDescription('Documentação interna')
-        .setVersion('2.0')
+        .setVersion('2.0.1')
         .addBearerAuth()
         .build();
         

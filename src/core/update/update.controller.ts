@@ -50,7 +50,6 @@ export class UpdateController {
             deviceId: user.device,
             name: user.name,
         }
-        
         return this.updateService.saveAndExport(sheetDto, dto.deviceName);
     };
 }

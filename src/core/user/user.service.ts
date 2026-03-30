@@ -58,7 +58,7 @@ export class UserService {
         if (!user) return null;
 
         const secureUser = {
-            _id: user._id,
+            id: user.id,
             name: user.name,
         }
 
